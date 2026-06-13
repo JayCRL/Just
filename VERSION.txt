@@ -1,0 +1,19 @@
+Just Language SDK
+Version: 1.0.0
+Release Date: 2024
+License: MIT
+
+Components:
+- Just Compiler v1.0
+- Runtime Library v1.0
+- Command Line Tools (justc, just)
+
+System Requirements:
+- Windows 10/11
+- Java 11+
+- GCC (MinGW-w64)
+
+Installation:
+Run install.ps1 to install Just SDK
+
+GitHub: https://github.com/JayCRL/Just

@@ -1,8 +1,16 @@
 @echo off
 setlocal
-set JUST_HOME=C:\Users\25566\just-lang
-set JAVA_HOME=C:\Program Files\Microsoft\jdk-11.0.16.101-hotspot
-set GCC_HOME=C:\Users\25566\mingw64\mingw64
+set "JUST_HOME=%~dp0.."
+set "JAVA_EXE=%JUST_HOME%\tools\jre\bin\java.exe"
+set "GCC_EXE=%JUST_HOME%\tools\mingw64\bin\gcc.exe"
+
+if not exist "%JAVA_EXE%" (
+    set "JAVA_EXE=java"
+)
+
+if not exist "%GCC_EXE%" (
+    set "GCC_EXE=gcc"
+)
 
 if "%~1"=="" (
     echo Usage: justc ^<file.just^>
@@ -15,15 +23,15 @@ set BASENAME=%~n1
 echo Compiling %SOURCE%...
 
 REM Step 1: Just to C
-"%JAVA_HOME%\bin\java.exe" -cp "%JUST_HOME%\compiler\bin" just.JustCompiler "%SOURCE%" >nul 2>&1
+"%JAVA_EXE%" -cp "%JUST_HOME%\compiler\bin" just.JustCompiler "%SOURCE%" >nul 2>&1
 if errorlevel 1 (
-    "%JAVA_HOME%\bin\java.exe" -cp "%JUST_HOME%\compiler\bin" just.JustCompiler "%SOURCE%"
+    "%JAVA_EXE%" -cp "%JUST_HOME%\compiler\bin" just.JustCompiler "%SOURCE%"
     exit /b 1
 )
 
 REM Step 2: C to EXE
 copy /Y "%BASENAME%.h" "just_generated.h" >nul 2>&1
-"%GCC_HOME%\bin\gcc.exe" -o "%BASENAME%.exe" "%BASENAME%.c" "%JUST_HOME%\runtime\runtime.c" -I. -I"%JUST_HOME%\runtime" -O2 >nul 2>&1
+"%GCC_EXE%" -o "%BASENAME%.exe" "%BASENAME%.c" "%JUST_HOME%\runtime\runtime.c" -I. -I"%JUST_HOME%\runtime" -O2 >nul 2>&1
 if errorlevel 1 (
     echo Linking failed
     exit /b 1

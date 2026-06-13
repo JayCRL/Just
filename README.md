@@ -1,110 +1,166 @@
-﻿# Just Language SDK v1.0
+# Just 0.2
 
-> 简单如 Java，快速如 C！
+Just is an experimental statically typed language with a minimal indentation-based syntax. It compiles to C and explores compile-time object structure inference: you can define data shapes explicitly, or let the compiler infer simple object fields from how values are used.
 
-[![Language](https://img.shields.io/badge/language-Just-blue.svg)](https://github.com/JayCRL/Just)
-[![Target](https://img.shields.io/badge/target-Native-green.svg)](https://en.wikipedia.org/wiki/C99)
-[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+This repository is a language experiment, not a production compiler. The current focus is a small, coherent syntax that is easy to read, easy to generate, and direct to lower into C.
 
-## 🚀 快速开始
+## Example
 
-### 安装
+The main example is [examples/simple_final.just](examples/simple_final.just):
 
-运行安装脚本：
+```just
+// Just minimal syntax final demo
+
+Dog:
+    name str
+    age int
+
+    say(prefix str):
+        print("${prefix}, I am ${name}, ${age} years old")
+
+    grow:
+        age = age + 1
+
+    olderThan(limit int) bool:
+        age > limit
+
+fn adult(age int) bool:
+    age >= 18
+
+main:
+    dogs Dog[] = [
+        ("Jon", 12)
+        ("Bob", 13)
+        ("Alice", 20)
+    ]
+
+    print("dog count: ${dogs.len}")
+
+    dogs[0].say("first")
+
+    i = 0
+    while i < dogs.len:
+        dogs[i].say("loop")
+        print(dogs[i].olderThan(18))
+        dogs[i].age = dogs[i].age + 1
+        i = i + 1
+
+    Dog d = Dog("Mini", 1)
+    d.grow()
+    d.say("after grow")
+
+    msg = "Mini adult? ${adult(d.age)}"
+    print(msg)
+```
+
+Expected output:
+
+```text
+dog count: 3
+first, I am Jon, 12 years old
+loop, I am Jon, 12 years old
+false
+loop, I am Bob, 13 years old
+false
+loop, I am Alice, 20 years old
+true
+after grow, I am Mini, 2 years old
+Mini adult? false
+```
+
+## Quick Start
+
+From a Windows shell:
+
 ```powershell
-.\install.ps1
+cd examples
+..\bin\justc.bat simple_final.just
+.\simple_final.exe
 ```
 
-### 第一个程序
+The current Windows compiler script expects Java and GCC to be available, unless you are using a bundled SDK build.
 
-创建 `hello.just`:
-```just
-class Main {
-    void main() {
-        println("Hello, Just!");
-    }
-}
-```
+## Supported Features
 
-编译运行（就像 Java 一样简单）:
-```bash
-justc hello.just    # 编译
-just hello          # 运行
-```
+- `main:` entry point
+- Indentation blocks using `:`
+- Static primitive types: `int`, `str`, `bool`, `float`
+- Explicit type definitions:
+  ```just
+  Dog:
+      name str
+      age int
+  ```
+- Compile-time object field inference for simple undeclared types:
+  ```just
+  Dog d
+  d.name = "Mini"
+  d.age = 1
+  ```
+- Constructors lowered to C struct initialization:
+  ```just
+  Dog d = Dog("Mini", 1)
+  ```
+- Fixed-length arrays:
+  ```just
+  dogs Dog[] = [
+      ("Jon", 12)
+      ("Alice", 20)
+  ]
+  ```
+- Array indexing and `.len`
+- `for item in array:` traversal
+- `while` loops
+- `if/else`
+- Top-level `fn` functions
+- Instance methods with parameters and return values
+- Method bodies can access fields as `age` or `this.age`
+- Local variable inference on first assignment
+- Basic expressions with precedence: `* / %`, `+ -`, comparisons, `== !=`, `&&`, `||`
+- String interpolation:
+  ```just
+  print("I am ${name}, ${age} years old")
+  ```
+- Single-line comments with `//`
 
-输出:
-```
-Hello, Just!
-```
+## Current Limitations
 
-## ✨ 特性
+- Just 0.2 is experimental and intentionally small.
+- The new indentation syntax currently lives in `SimpleJustCompiler`, an independent compiler path.
+- The older Java-like syntax path still exists, but it is not the focus of Just 0.2.
+- There is no full token-based parser for the simple syntax yet; parts of the parser are still line-oriented.
+- No dynamic arrays, `append`, `filter`, or `map`.
+- No function or method overloads.
+- No generics, inheritance, interfaces, modules, or packages.
+- No complete block-scoped symbol table.
+- No ownership or lifetime model for generated strings.
+- Error reporting is improving, but still limited.
 
-- 🎯 **简单易用**: 像 `javac/java` 一样的命令
-- 🚀 **原生性能**: 编译到 C，接近原生速度
-- ⚡ **快速编译**: < 1 秒（小程序）
-- 📦 **面向对象**: 类、继承、多态
-- 🔧 **零开销**: 无虚拟机，无 GC 暂停
-- 📝 **现代语法**: 简洁、清晰、易学
+## Documentation
 
-## 📋 系统要求
+- [Simple Just Syntax](docs/SIMPLE_JUST_SYNTAX.md)
+- [Syntax Features](docs/SYNTAX_FEATURES.md)
+- [Syntax Comparison](docs/SYNTAX_COMPARISON.md)
 
-### 必需
-- **Windows 10/11**
-- **Java 11+** - [下载](https://adoptium.net/)
-- **GCC (MinGW-w64)** - [下载](https://winlibs.com/)
+Older implementation notes and completion reports are archived under `docs/archive/`.
 
-## 🎯 命令参考
+## Roadmap
 
-```bash
-justc <file.just>   # 编译
-just <program>      # 运行
-```
+Near-term work:
 
-## 📚 示例
+- Replace the line-oriented simple parser with a real lexer/parser using `NEWLINE`, `INDENT`, and `DEDENT` tokens.
+- Formalize the AST for the simple syntax instead of using ad hoc internal nodes.
+- Improve diagnostics with better source spans.
+- Add focused tests for parser, semantic inference, and C generation.
+- Clarify the relationship between the older Java-like syntax and the new minimal syntax.
+- Reduce compiler/runtime packaging friction.
 
-### 计算器
-```just
-class Calculator {
-    int add(int a, int b) {
-        return a + b;
-    }
-}
+Longer-term questions:
 
-class Main {
-    void main() {
-        Calculator calc = new Calculator();
-        int sum = calc.add(10, 20);
-        println("10 + 20 = 30");
-    }
-}
-```
+- Whether Just should continue lowering to C or move to a lower-level IR.
+- How much object inference should remain in the language.
+- How strings, arrays, and memory ownership should work beyond the current prototype.
 
-更多示例: `examples/`
+## License
 
-## 📖 文档
-
-- **快速开始**: `JAVAC_STYLE_GUIDE.md`
-- **语法参考**: `docs\SYNTAX_FEATURES.md`
-- **性能对比**: `docs\SYNTAX_COMPARISON.md`
-
-## ⚡ 性能
-
-| 语言 | 斐波那契(40) | 相对速度 |
-|------|-------------|----------|
-| C | 0.5s | 1.0x |
-| **Just** | **0.5s** | **1.0x** |
-| Go | 1.2s | 0.4x |
-| Java | 1.8s | 0.3x |
-
-## 📞 支持
-
-- **GitHub**: https://github.com/JayCRL/Just
-- **Issues**: https://github.com/JayCRL/Just/issues
-
-## 📄 许可证
-
-MIT License
-
----
-
-**Just Language - 简单、快速、强大！** 🚀
+MIT License. See [LICENSE](LICENSE).

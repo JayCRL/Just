@@ -110,13 +110,37 @@ public class CCodeGenerator implements ASTVisitor<Void> {
         // 生成所有方法实现
         for (ClassDecl classDecl : program.classes) {
             currentClass = classes.get(classDecl.name);
+
+            // 检查是否有构造函数
+            boolean hasConstructor = false;
             for (MethodDecl method : classDecl.methods) {
+                if (method.isConstructor) {
+                    hasConstructor = true;
+                }
                 generateMethodImpl(classDecl.name, method);
+            }
+
+            // 如果没有构造函数，生成默认构造函数
+            if (!hasConstructor) {
+                generateDefaultConstructor(classDecl.name);
             }
         }
 
         // 生成 main 函数
         generateMainFunction(program);
+    }
+
+    /**
+     * 生成默认构造函数
+     */
+    private void generateDefaultConstructor(String className) {
+        source.println("/* " + className + "." + className + " (默认构造函数) */");
+        source.println(className + "* " + className + "_" + className + "() {");
+        source.println("    " + className + "* self = (" + className +
+                      "*)just_alloc(sizeof(" + className + "));");
+        source.println("    return self;");
+        source.println("}");
+        source.println();
     }
 
     private void generateMethodImpl(String className, MethodDecl method) {

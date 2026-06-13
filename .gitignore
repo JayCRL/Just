@@ -27,3 +27,8 @@ Thumbs.db
 # Temporary files
 *~
 *.swp
+
+# Local deployment files (contains sensitive info)
+DEPLOY_LOCAL.txt
+just-sdk.zip
+just-sdk.tar.gz

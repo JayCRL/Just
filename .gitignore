@@ -1,0 +1,29 @@
+# Compiled output
+compiler/bin/
+*.class
+
+# Generated C files
+examples/*.c
+examples/*.h
+*.o
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.log
+*.tmp
+
+# Temporary files
+*~
+*.swp
